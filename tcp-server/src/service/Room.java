@@ -41,19 +41,26 @@ public class Room {
     public void startGame() {
         gameStarted = true;
         
-        matchTimer = new CountDownTimer(31);
+        matchTimer = new CountDownTimer(151);
         matchTimer.setTimerCallBack(
             null,
             (Callable) () -> {
                 time = "" + CustumDateTimeFormatter.secondsToMinutes(matchTimer.getCurrentTick());
-                System.out.println(time);
-                if (time.equals("00:00")) {
+                
+                if(resultClient1 != null && resultClient2 != null){
+                    waitingClientTimer();
+                    
+                    stopMatchTimer();
+                }else if (time.equals("00:00")) {
                     waitingClientTimer();
                     if (resultClient1 == null && resultClient2 == null) {
                         draw();
                         broadcast("RESULT_GAME;success;DRAW;" + client1.getLoginUser() + ";" + client2.getLoginUser() + ";" + id);
                     } 
                 }
+                
+                System.out.println(time);
+                
                 return null;
             },
             1
@@ -158,13 +165,14 @@ public class Room {
         int score = 0;
         for (int i = 0; i < results.length(); i++) {
             char ch = results.charAt(i);
-            score += 1;
+            if (ch == '1'){
+                score += 1;
+            }  
         }
         
-        int i = Integer.parseInt(results);
         
-        System.out.println(user1 + " : " + i + " cau dung");
-        return i;
+        System.out.println(user1 + " : " + score + " cau dung");
+        return score;
     }
 
     public void draw () throws SQLException {
@@ -307,6 +315,12 @@ public class Room {
             }
         }
         return null;
+    }
+    
+    public void stopMatchTimer() {
+        if (matchTimer != null) {
+            matchTimer.cancel();  // Dừng đồng hồ đếm ngược
+        }
     }
 
     // gets sets

@@ -101,11 +101,10 @@ public class GameView3 extends javax.swing.JFrame {
         btnSubmit.setVisible(false);
         lbWaiting.setVisible(true);
         
-        if (i < words.length) {
-            for(int t=i; t<=words.length; t+=1){
-                res += "0";
-            }
+        for(int t=i; t<=words.length; t+=1){
+            res += "0";
         }
+        
         System.out.println("Results: " + res);
         lbWaiting.setText("Waiting result from server...");
     }
@@ -519,7 +518,7 @@ public class GameView3 extends javax.swing.JFrame {
         ClientRun.socketHandler.startGame(competitor);
     }                                        
 
-    private void btnSubmitActionPerformed(java.awt.event.ActionEvent evt) {                                          
+    private void btnSubmitActionPerformed(java.awt.event.ActionEvent evt) { 
         ClientRun.socketHandler.submitResult(competitor);
     }                                         
 
@@ -539,7 +538,7 @@ public class GameView3 extends javax.swing.JFrame {
         res += "0";
         if (i >= words.length) {
             showMessage("Bạn đang ở câu hỏi cuối cùng.");
-            afterSubmit();
+//            afterSubmit();
         } else {
             loadNextWord();
         };
