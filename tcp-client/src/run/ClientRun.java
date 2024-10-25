@@ -10,6 +10,8 @@ import view.LoginView;
 import view.MessageView;
 import view.RegisterView;
 
+// testtttttttttttttttttttttttttttttttttttttt
+
 public class ClientRun {
     public enum SceneName {
         CONNECTSERVER,
