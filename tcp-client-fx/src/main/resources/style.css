@@ -1,0 +1,60 @@
+/* Header styles */
+.header {
+    -fx-background-color: #f0f0f0;
+    -fx-padding: 10;
+    -fx-alignment: center-left;
+}
+
+.chat-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-padding: 0 0 0 10;
+}
+
+.leave-button {
+    -fx-background-color: #d9a04d;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 5 10;
+    -fx-background-radius: 10;
+}
+
+/* Chat scroll pane */
+.chat-scroll-pane {
+    -fx-background-color: white;
+}
+
+/* Chat bubbles */
+.friend-message {
+    -fx-background-color: #ebebff;
+    -fx-text-fill: #333;
+    -fx-padding: 10;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-font-size: 14px;
+    -fx-margin: 5 10;
+}
+
+.user-message {
+    -fx-background-color: #dcf8c6;
+    -fx-text-fill: #333;
+    -fx-padding: 10;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-font-size: 14px;
+    -fx-margin: 5 10;
+}
+
+/* Footer styles */
+.footer {
+    -fx-padding: 10;
+    -fx-spacing: 10;
+}
+
+.send-button {
+    -fx-background-color: #d9a04d;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 5 10;
+    -fx-background-radius: 10;
+}
