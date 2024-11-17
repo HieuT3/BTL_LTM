@@ -21,7 +21,7 @@ public class UserController {
     //  SQL
     private final String INSERT_USER = "INSERT INTO users (username, password, score, win, draw, lose, avgCompetitor, avgTime) VALUES (?, ?, 0, 0, 0, 0, 0, 0)";
     
-    private final String CHECK_USER = "SELECT TOP 1 userId from users WHERE username = ?";
+    private final String CHECK_USER = "SELECT userId from users WHERE username = ? limit 1";
     
     private final String LOGIN_USER = "SELECT username, password, score FROM users WHERE username=? AND password=?";
     
@@ -36,16 +36,18 @@ public class UserController {
     }
 
     public String register(String username, String password) {
-    	//  Check user exit
         try {
-            PreparedStatement p = con.prepareStatement(CHECK_USER, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            PreparedStatement p = con.prepareStatement(CHECK_USER);
             p.setString(1, username);
             ResultSet r = p.executeQuery();
-            if (r.first()) {
-                return "failed;" + "User Already Exit";
+
+            if (r.next()) {
+                return "failed; User Already Exists";
             } else {
                 r.close();
                 p.close();
+
+                // Chèn dữ liệu mới nếu không tồn tại
                 p = con.prepareStatement(INSERT_USER);
                 p.setString(1, username);
                 p.setString(2, password);
@@ -54,20 +56,21 @@ public class UserController {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            return "failed; Error occurred while registering user.";
         }
         return "success;";
     }
+
   
     public String login(String username, String password) {
-    	//  Check user exit
         try {
-            PreparedStatement p = con.prepareStatement(LOGIN_USER, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-            //  Login User 
+            PreparedStatement p = con.prepareStatement(LOGIN_USER);
             p.setString(1, username);
             p.setString(2, password);
             ResultSet r = p.executeQuery();
-            
-            if (r.first()) {
+
+            // Sử dụng next() thay vì first()
+            if (r.next()) {
                 float score = r.getFloat("score");
                 return "success;" + username + ";" + score;
             } else {
@@ -75,8 +78,8 @@ public class UserController {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            return "failed;SQL error occurred";
         }
+        return null;
     }
     
     public String getInfoUser(String username) {
@@ -142,3 +145,4 @@ public class UserController {
         return null;
     }
 }
+

@@ -46,21 +46,14 @@ public class Room {
             null,
             (Callable) () -> {
                 time = "" + CustumDateTimeFormatter.secondsToMinutes(matchTimer.getCurrentTick());
-                
-                if(resultClient1 != null && resultClient2 != null){
-                    waitingClientTimer();
-                    
-                    stopMatchTimer();
-                }else if (time.equals("00:00")) {
-                    waitingClientTimer();
+//                System.out.println(time);
+                if (time.equals("00:00")) {
+//                    waitingClientTimer();
                     if (resultClient1 == null && resultClient2 == null) {
                         draw();
                         broadcast("RESULT_GAME;success;DRAW;" + client1.getLoginUser() + ";" + client2.getLoginUser() + ";" + id);
                     } 
                 }
-                
-                System.out.println(time);
-                
                 return null;
             },
             1
@@ -75,7 +68,7 @@ public class Room {
                 waitingTime = "" + CustumDateTimeFormatter.secondsToMinutes(waitingTimer.getCurrentTick());
                 System.out.println("waiting: " + waitingTime);
                 if (waitingTime.equals("00:00")) {
-                    if (playAgainC1 == null && playAgainC2 == null) {
+                    if (playAgainC1 == null || playAgainC2 == null) {
                         broadcast("ASK_PLAY_AGAIN;NO");
                         deleteRoom();
                     } 
@@ -262,6 +255,8 @@ public class Room {
     }
     
     public String handlePlayAgain () {
+        System.out.println(playAgainC1 + playAgainC2);
+        
         if (playAgainC1 == null || playAgainC2 == null) {
             return "NO";
         } else if (playAgainC1.equals("YES") && playAgainC2.equals("YES")) {
@@ -320,6 +315,8 @@ public class Room {
     public void stopMatchTimer() {
         if (matchTimer != null) {
             matchTimer.cancel();  // Dừng đồng hồ đếm ngược
+            matchTimer = null;
+            time = "00:00";
         }
     }
 
