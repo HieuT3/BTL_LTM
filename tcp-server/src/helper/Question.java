@@ -22,7 +22,7 @@ public class Question {
     
     public static String renQuestion() {
         List<String> wordsList = new ArrayList<>();
-        String query = "SELECT TOP 5 word FROM words ORDER BY NEWID()";  // Lấy 5 từ ngẫu nhiên
+        String query = "SELECT word FROM words ORDER BY RAND() LIMIT 5"; // Lấy 5 từ ngẫu nhiên
 
         // Lấy kết nối tới cơ sở dữ liệu
         Connection connection = DatabaseConnection.getInstance().getConnection();
@@ -30,7 +30,7 @@ public class Question {
         try {
             PreparedStatement statement = connection.prepareStatement(query);
             ResultSet resultSet = statement.executeQuery();
-            
+
             // Duyệt qua các kết quả và thêm vào danh sách wordsList
             while (resultSet.next()) {
                 wordsList.add(resultSet.getString("word"));
@@ -53,6 +53,8 @@ public class Question {
 
         return null; // Trả về null nếu có lỗi xảy ra
     }
+
+    
     
     public static void main(String[] args) {
         String question = renQuestion();
