@@ -550,7 +550,7 @@ private void onReceiveInviteToPlay(String received) {
             roomIdPresent = null;
             Platform.runLater(() -> {
                 ClientRun.closeScene(ClientRun.SceneName.GAMEVIEW);
-
+                ClientRun.gameView.resetComponents();
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Game Ended");
                 alert.setHeaderText(null);
@@ -617,6 +617,7 @@ private void onReceiveInviteToPlay(String received) {
                 alert.setContentText("End Game!");
                 alert.showAndWait();
             } else {
+                ClientRun.gameView.resetComponents();
                 if (loginUser.equals(splitted[2])) {
                     ClientRun.gameView.setStateHostRoom();
                 } else {

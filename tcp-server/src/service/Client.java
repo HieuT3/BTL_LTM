@@ -406,7 +406,7 @@ public class Client implements Runnable {
         }
 
         // Nếu chưa đủ kết quả, chờ đến khi thời gian kết thúc (00:00)
-        while (!joinedRoom.getTime().equals("00:00")) {
+        while (joinedRoom != null && !joinedRoom.getTime().equals("00:00")) {
             if (joinedRoom.getResultClient1() != null && joinedRoom.getResultClient2() != null) {
                 break;
             }    

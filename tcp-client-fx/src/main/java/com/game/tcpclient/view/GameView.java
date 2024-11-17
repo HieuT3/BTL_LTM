@@ -7,6 +7,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -23,6 +24,32 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 public class GameView {
+
+    public void resetComponents() {
+        Platform.runLater(() -> {
+            i = 0;
+            res = "";
+            answer = false;
+            centerLabels.clear();
+            letterButtons.clear();
+            centerToBottomMap.clear();
+
+            // Hide panels and buttons initially
+            panel.setVisible(false);
+            panelPlayAgain.setVisible(false);
+            btnSubmit.setVisible(false);
+            pbgTimer.setProgress(0);
+            pbgTimer.setVisible(true);
+            lbWaiting.setText("Waiting host start game....");
+            lbWaiting.setVisible(true);
+            lbWaitingTimer.setVisible(false);
+
+            // Clear center and bottom panels
+            centerPanel.getChildren().clear();
+            bottomPanel.getChildren().clear();
+            panel.setPrefWidth(scene.getWidth() * 3 / 4);
+        });
+    }
 
     private FlowPane bottomPanel;
     private Button btnCheck;
@@ -63,17 +90,22 @@ public class GameView {
         centerLabels = new ArrayList<>();
         letterButtons = new ArrayList<>();
 
+        panel.setPrefWidth(1000);
         panel.setVisible(false);
+
         panelPlayAgain.setVisible(false);
         btnSubmit.setVisible(false);
         pbgTimer.setVisible(false);
+        lblTimer.setVisible(false);
+        lbWaiting.setVisible(false);
+        lbWaitingTimer.setVisible(false);
 
         // close window event
         stage.setOnCloseRequest(event -> {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("LEAVE GAME");
             alert.setHeaderText(null);
-            alert.setContentText("Are you sure want to leave game? You will lose?");
+            alert.setContentText("Are you sure you want to leave the game? You will lose.");
 
             if (alert.showAndWait().orElse(ButtonType.NO) == ButtonType.YES) {
                 ClientRun.socketHandler.leaveGame(competitor);
@@ -83,6 +115,148 @@ public class GameView {
                 event.consume();
             }
         });
+    }
+
+    private void initComponents() {
+        // Main layout styling
+        BorderPane mainLayout = new BorderPane();
+        mainLayout.setPadding(new Insets(20));
+        mainLayout.setBackground(new Background(new BackgroundFill(Color.web("#f0f8ff"), CornerRadii.EMPTY, Insets.EMPTY)));
+
+        // Header - Player Info, Timer, and Leave Button
+        VBox header = new VBox(10);
+        header.setAlignment(Pos.CENTER);
+        header.setPadding(new Insets(10));
+        header.setStyle("-fx-background-color: #333;");
+
+        HBox playerInfoBox = new HBox(20);
+        playerInfoBox.setAlignment(Pos.CENTER);
+
+        infoPlayer = new Label("Play game with: hieucao135");
+        infoPlayer.setFont(new Font("Arial", 20));
+        infoPlayer.setTextFill(Color.WHITE);
+
+        btnLeaveGame = new Button("Leave Game");
+        btnLeaveGame.setStyle("-fx-background-color: #ff6347; -fx-text-fill: white; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, black, 5, 0, 0, 1);");
+        btnLeaveGame.setOnAction(evt -> btnLeaveGameActionPerformed());
+
+        playerInfoBox.getChildren().addAll(infoPlayer, btnLeaveGame);
+
+        // Timer Panel
+        HBox timerPanel = new HBox(20);
+        timerPanel.setAlignment(Pos.CENTER);
+        timerPanel.setPadding(new Insets(10));
+        timerPanel.setBackground(new Background(new BackgroundFill(Color.web("#e0f7fa"), new CornerRadii(10), Insets.EMPTY)));
+
+        pbgTimer = new ProgressBar(0);
+        pbgTimer.setPrefWidth(300);
+        pbgTimer.setStyle("-fx-accent: #32cd32;");
+
+        lblTimer = new Label("02:27");
+        lblTimer.setFont(new Font("Arial", 24));
+        lblTimer.setTextFill(Color.rgb(255, 69, 0));
+        lblTimer.setVisible(false);
+        timerPanel.getChildren().addAll(pbgTimer);
+
+        header.getChildren().addAll(playerInfoBox, timerPanel);
+        mainLayout.setTop(header);
+
+        // Game Panel
+        panel = new VBox(20);
+        panel.setAlignment(Pos.CENTER);
+        panel.setPadding(new Insets(20));
+        panel.setPrefWidth(900);
+        panel.setBackground(new Background(new BackgroundFill(Color.WHITE, new CornerRadii(15), Insets.EMPTY)));
+        panel.setEffect(new DropShadow(10, Color.GRAY));
+
+        centerPanel = new FlowPane();
+        centerPanel.setAlignment(Pos.CENTER);
+        centerPanel.setPrefWidth(400);
+        centerPanel.setHgap(15);
+        centerPanel.setVgap(15);
+        centerPanel.setPadding(new Insets(10));
+        centerPanel.setBackground(new Background(new BackgroundFill(Color.web("#fafad2"), new CornerRadii(10), Insets.EMPTY)));
+
+        bottomPanel = new FlowPane();
+        bottomPanel.setAlignment(Pos.CENTER);
+        bottomPanel.setHgap(15);
+        bottomPanel.setVgap(15);
+        bottomPanel.setPadding(new Insets(10));
+        bottomPanel.setBackground(new Background(new BackgroundFill(Color.web("#fafad2"), new CornerRadii(10), Insets.EMPTY)));
+
+        // Add Question Controls
+        btnCheck = new Button("Check");
+        btnCheck.setStyle("-fx-background-color: #ffeb3b; -fx-text-fill: black; -fx-font-weight: bold; -fx-font-size: 16; -fx-pref-width: 100px; -fx-pref-height: 40px;");
+        btnCheck.setOnAction(evt -> btnCheckActionPerformed());
+
+        btnSkip = new Button("Skip");
+        btnSkip.setStyle("-fx-background-color: #ff8c00; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16; -fx-pref-width: 100px; -fx-pref-height: 40px;");
+        btnSkip.setOnAction(evt -> btnSkipActionPerformed());
+
+        HBox questionBox = new HBox(20, centerPanel, btnCheck, btnSkip);
+        questionBox.setAlignment(Pos.CENTER);
+        questionBox.setPadding(new Insets(10));
+        questionBox.setBackground(new Background(new BackgroundFill(Color.web("#e0f7fa"), new CornerRadii(10), Insets.EMPTY)));
+
+        panel.getChildren().addAll(new Label("Question"), questionBox, bottomPanel);
+        mainLayout.setCenter(panel);
+
+        // Bottom Controls
+        HBox controls = new HBox(20);
+        controls.setAlignment(Pos.CENTER);
+        controls.setPadding(new Insets(10));
+        controls.setBackground(new Background(new BackgroundFill(Color.web("#e0f7fa"), new CornerRadii(10), Insets.EMPTY)));
+
+        btnStart = new Button("Start");
+        btnStart.setStyle("-fx-background-color: #32cd32; -fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, black, 5, 0, 0, 1);");
+        btnStart.setOnAction(evt -> btnStartActionPerformed());
+
+        btnSubmit = new Button("Submit");
+        btnSubmit.setStyle("-fx-background-color: #ffc107; -fx-text-fill: black; -fx-font-size: 16; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, black, 5, 0, 0, 1);");
+        btnSubmit.setOnAction(evt -> btnSubmitActionPerformed());
+
+        lbWaiting = new Label("Waiting host start game....");
+        lbWaiting.setFont(new Font("Arial", 18));
+        lbWaiting.setTextFill(Color.rgb(255, 204, 51));
+
+        lbWaitingTimer = new Label("00:00");
+        lbWaitingTimer.setFont(new Font("Arial", 14));
+        lbWaitingTimer.setTextFill(Color.rgb(255, 204, 51));
+
+        controls.getChildren().addAll(btnStart, lbWaiting, lbWaitingTimer, btnSubmit);
+        mainLayout.setBottom(controls);
+
+        // Ask Play Again Panel
+        panelPlayAgain = new VBox(20);
+        panelPlayAgain.setAlignment(Pos.CENTER);
+        panelPlayAgain.setPadding(new Insets(20));
+        panelPlayAgain.setBackground(new Background(new BackgroundFill(Color.WHITE, new CornerRadii(10), Insets.EMPTY)));
+        panelPlayAgain.setEffect(new DropShadow(10, Color.GRAY));
+        panelPlayAgain.setVisible(false);
+
+        lbResult = new Label("Do you want to play again?");
+        lbResult.setFont(new Font("Arial", 20));
+        lbResult.setTextFill(Color.DARKBLUE);
+
+        btnYes = new Button("Yes");
+        btnYes.setStyle("-fx-background-color: #32cd32; -fx-text-fill: white; -fx-font-weight: bold;");
+        btnYes.setOnAction(evt -> btnYesActionPerformed());
+
+        btnNo = new Button("No");
+        btnNo.setStyle("-fx-background-color: #ff6347; -fx-text-fill: white; -fx-font-weight: bold;");
+        btnNo.setOnAction(evt -> btnNoActionPerformed());
+
+        HBox playAgainControls = new HBox(20, btnYes, btnNo);
+        playAgainControls.setAlignment(Pos.CENTER);
+
+        panelPlayAgain.getChildren().addAll(lbResult, playAgainControls);
+        mainLayout.setRight(panelPlayAgain);
+
+        // Scene and Stage Setup
+        scene = new Scene(mainLayout, 1000, 700);
+        stage = new Stage();
+        stage.setScene(scene);
+        stage.setTitle("Game");
     }
 
     public void setWaitingRoom() {
@@ -314,116 +488,6 @@ public class GameView {
         alert.showAndWait();
     }
 
-    private void initComponents() {
-        // Label hiển thị thông tin người chơi
-        infoPlayer = new Label("Play game with: hieucao135");
-        infoPlayer.setFont(new Font("Tahoma", 18));
-
-        // Nút thoát game
-        btnLeaveGame = new Button("Leave Game");
-        btnLeaveGame.setStyle("-fx-background-color: #FF3333; -fx-text-fill: white;");
-        btnLeaveGame.setOnAction(evt -> btnLeaveGameActionPerformed());
-
-        // Thanh Progress Bar cho bộ đếm thời gian
-        pbgTimer = new ProgressBar(0);
-        pbgTimer.setPrefWidth(200);
-
-        // Label hiển thị thời gian còn lại
-        lblTimer = new Label("02:27");
-        lblTimer.setFont(new Font("Tahoma", 18));
-        lblTimer.setTextFill(Color.rgb(255, 204, 51));
-
-        // Panel chính chứa câu hỏi
-        panel = new VBox(10);
-        panel.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-        panel.setPadding(new Insets(10));
-
-        // Center panel hiển thị các ô chữ trống
-        centerPanel = new FlowPane();
-        centerPanel.setAlignment(Pos.CENTER);
-        centerPanel.setHgap(10);
-
-        // Bottom panel chứa các chữ cái xáo trộn
-        bottomPanel = new FlowPane();
-        bottomPanel.setAlignment(Pos.CENTER);
-        bottomPanel.setHgap(10);
-
-        // Nút kiểm tra từ
-        btnCheck = new Button("Check");
-        btnCheck.setOnAction(evt -> btnCheckActionPerformed());
-
-        // Nút bỏ qua từ hiện tại
-        btnSkip = new Button("Skip");
-        btnSkip.setOnAction(evt -> btnSkipActionPerformed());
-
-        // Tạo layout cho panel câu hỏi
-        HBox questionBox = new HBox(10, centerPanel, btnCheck, btnSkip);
-        questionBox.setAlignment(Pos.CENTER);
-        questionBox.setPadding(new Insets(10));
-
-        // Thêm các thành phần vào panel câu hỏi
-        panel.getChildren().addAll(new Label("Question"), questionBox, bottomPanel);
-
-        // Nút submit
-        btnSubmit = new Button("Submit");
-        btnSubmit.setOnAction(evt -> btnSubmitActionPerformed());
-
-        // Panel hỏi lại khi kết thúc game
-        panelPlayAgain = new VBox(10);
-        panelPlayAgain.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-        panelPlayAgain.setPadding(new Insets(10));
-        panelPlayAgain.setVisible(false);
-
-        lbResult = new Label("Do you want to play again?");
-        lbResult.setFont(new Font("Tahoma", 14));
-        lbResult.setTextFill(Color.rgb(255, 204, 51));
-
-        lbWaitingTimer = new Label("00:00");
-        lbWaitingTimer.setFont(new Font("Tahoma", 14));
-        lbWaitingTimer.setTextFill(Color.rgb(255, 204, 51));
-
-        btnYes = new Button("Yes");
-        btnYes.setOnAction(evt -> btnYesActionPerformed());
-
-        btnNo = new Button("No");
-        btnNo.setOnAction(evt -> btnNoActionPerformed());
-
-        HBox playAgainButtons = new HBox(10, btnYes, btnNo);
-        playAgainButtons.setAlignment(Pos.CENTER);
-
-        HBox playAgainHeader = new HBox(10, lbResult, lbWaitingTimer);
-        playAgainHeader.setAlignment(Pos.CENTER_LEFT);
-
-        panelPlayAgain.getChildren().addAll(playAgainHeader, playAgainButtons);
-
-        // Label chờ đợi người chơi khác
-        lbWaiting = new Label("Waiting host start game....");
-        lbWaiting.setFont(new Font("Tahoma", 18));
-
-        // Nút bắt đầu game
-        btnStart = new Button("Start");
-        btnStart.setOnAction(evt -> btnStartActionPerformed());
-
-        // Tạo bố cục chính
-        VBox mainLayout = new VBox(20);
-        mainLayout.setPadding(new Insets(20));
-        mainLayout.getChildren().addAll(
-                new HBox(10, infoPlayer, btnLeaveGame),
-                pbgTimer,
-                lblTimer,
-                panel,
-                new HBox(10, btnStart, lbWaiting, btnSubmit),
-                panelPlayAgain
-        );
-
-        // Tạo scene và gán cho stage
-        scene = new Scene(mainLayout, 800, 600);
-        stage = new Stage();
-        stage.setScene(scene);
-        stage.setTitle("Game");
-    }
-
-
     private void btnLeaveGameActionPerformed() {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("LEAVE GAME");
@@ -441,6 +505,7 @@ public class GameView {
 
     private void btnStartActionPerformed() {
         ClientRun.socketHandler.startGame(competitor);
+        resetComponents();
     }
 
     private void btnSubmitActionPerformed() {
@@ -457,6 +522,7 @@ public class GameView {
         ClientRun.socketHandler.acceptPlayAgain();
         answer = true;
         hideAskPlayAgain();
+        resetComponents();
     }
 
     private void btnSkipActionPerformed() {
