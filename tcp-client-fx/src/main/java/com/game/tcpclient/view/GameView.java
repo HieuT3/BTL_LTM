@@ -386,6 +386,7 @@ public class GameView {
     }
 
     private void loadNextWord() {
+        if(i >= words.length) return;
         Platform.runLater(() -> {
             String[] scrambledLetters = getScrambledLetters();
 

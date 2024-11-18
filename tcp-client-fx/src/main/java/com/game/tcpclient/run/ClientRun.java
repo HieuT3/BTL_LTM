@@ -5,7 +5,6 @@ import com.game.tcpclient.view.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
-import com.game.tcpclient.view.*;
 
 public class ClientRun extends Application {
     public enum SceneName {
@@ -14,6 +13,7 @@ public class ClientRun extends Application {
         REGISTER,
         HOMEVIEW,
         INFOPLAYER,
+        RANKINGVIEW,
         MESSAGEVIEW,
         GAMEVIEW
     }
@@ -23,6 +23,7 @@ public class ClientRun extends Application {
     public static LoginView loginView;
     public static RegisterView registerView;
     public static HomeView homeView;
+    public static RankingView rankingView;
     public static InfoPlayerView infoPlayerView;
     public static MessageView messageView;
     public static GameView gameView;
@@ -46,6 +47,7 @@ public class ClientRun extends Application {
         loginView = new LoginView();
         registerView = new RegisterView();
         homeView = new HomeView();
+        rankingView = new RankingView();
         infoPlayerView = new InfoPlayerView();
         messageView = new MessageView();
         gameView = new GameView();
@@ -79,6 +81,11 @@ public class ClientRun extends Application {
                         primaryStage.centerOnScreen();
                         primaryStage.show();
                         break;
+                    case RANKINGVIEW:
+                        Platform.runLater(() -> {
+                            openModalWindow(rankingView, "Ranking");
+                        });
+                        break;
                     case INFOPLAYER:
                         Platform.runLater(() -> {
                             openModalWindow(infoPlayerView, "Player Information");
@@ -108,6 +115,8 @@ public class ClientRun extends Application {
             modalStage.setScene(((InfoPlayerView) view).getScene());
         } else if (view instanceof MessageView) {
             modalStage = ((MessageView) view).getStage();
+        } else if (view instanceof RankingView) {
+            modalStage = ((RankingView) view).getStage();
         } else if((view instanceof GameView)) {
             modalStage = ((GameView) view).getStage();
         } else {

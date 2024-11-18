@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -114,6 +116,9 @@ public class SocketHandler {
                     case "CHAT_MESSAGE":
                         onReceiveChatMessage(received);
                         break;
+                    case "GET_SCORE_RANKING":
+                        onReceiveGetRankingScore(received);
+                        break;
                     case "INVITE_TO_PLAY":
                         onReceiveInviteToPlay(received);
                         break;
@@ -199,6 +204,10 @@ public class SocketHandler {
 
     public void checkStatusUser(String username) {
         sendData("CHECK_STATUS_USER;" + username);
+    }
+
+    public void getRanking() {
+        sendData("GET_SCORE_RANKING");
     }
 
     // Chat
@@ -463,6 +472,39 @@ public class SocketHandler {
                 ClientRun.messageView.setContentChat(chat);
             });
         }
+    }
+
+    private void onReceiveGetRankingScore(String received) {
+        String[] data = received.split(";", 2);
+        if (data.length < 2) {
+            System.out.println("Invalid ranking data received.");
+            return;
+        }
+
+        String[] rankings = data[1].split(";");
+
+        List<User> userList = new ArrayList<>();
+
+        for (String ranking : rankings) {
+            String[] userInfo = ranking.split("\\|");
+            if (userInfo.length < 7) {
+                System.out.println("Invalid user data: " + ranking);
+                continue;
+            }
+
+            User user = new User();
+            user.setUsername(userInfo[0]);
+            user.setScore(Float.parseFloat(userInfo[1]));
+            user.setWin(Integer.parseInt(userInfo[2]));
+            user.setDraw(Integer.parseInt(userInfo[3]));
+            user.setLose(Integer.parseInt(userInfo[4]));
+            user.setAvgCompetitor(Float.parseFloat(userInfo[5]));
+            user.setAvgTime(Float.parseFloat(userInfo[6]));
+
+            userList.add(user);
+        }
+        ClientRun.openScene(ClientRun.SceneName.RANKINGVIEW);
+        ClientRun.rankingView.setRankingTable(userList);
     }
 
 

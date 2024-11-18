@@ -87,11 +87,12 @@ public class HomeView {
         // Action Cards
         VBox actionCardPlay = createActionCard("Play", "#27ae60", "Start a game", this::btnPlayAction);
         VBox actionCardMessage = createActionCard("Message", "#2980b9", "Chat with a user", this::btnMessageAction);
+        VBox actionCardRanking = createActionCard("Ranking", "#456358", "Ranking", this::btnRankingAction);
         VBox actionCardRefresh = createActionCard("Refresh", "#f1c40f", "Refresh user list", this::btnRefreshAction);
         VBox actionCardInfo = createActionCard("Info", "#9b59b6", "View user info", this::btnGetInfoAction);
         VBox actionCardLogout = createActionCard("Logout", "#e74c3c", "Sign out", this::btnLogoutAction);
 
-        HBox actionCards = new HBox(20, actionCardPlay, actionCardMessage, actionCardRefresh, actionCardInfo, actionCardLogout);
+        HBox actionCards = new HBox(20, actionCardPlay, actionCardMessage, actionCardRanking, actionCardRefresh, actionCardInfo, actionCardLogout);
         actionCards.setAlignment(Pos.CENTER);
         actionCards.setPadding(new Insets(20));
 
@@ -207,6 +208,10 @@ public class HomeView {
                 ClientRun.socketHandler.inviteToChat(userSelected);
             }
         }
+    }
+
+    private void btnRankingAction() {
+        ClientRun.socketHandler.getRanking();
     }
 
     private void btnRefreshAction() {
