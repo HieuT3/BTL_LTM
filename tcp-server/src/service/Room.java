@@ -40,6 +40,9 @@ public class Room {
 
     public void startGame() {
         gameStarted = true;
+        if (client1.getWords() != null){
+            client2.setWords(client1.getWords());
+        }
         
         matchTimer = new CountDownTimer(151);
         matchTimer.setTimerCallBack(
@@ -84,6 +87,8 @@ public class Room {
         client1.setcCompetitor(null);
         client2.setJoinedRoom(null);
         client2.setcCompetitor(null);
+        client1.setWords(null);
+        client2.setWords(null);
         ServerRun.roomManager.remove(this);
     }
     
@@ -403,7 +408,5 @@ public class Room {
 
     public void setWaitingTime(String waitingTime) {
         this.waitingTime = waitingTime;
-    }
-    
-    
+    }    
 }

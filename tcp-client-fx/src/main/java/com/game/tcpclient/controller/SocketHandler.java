@@ -143,6 +143,9 @@ public class SocketHandler {
                     case "ASK_PLAY_AGAIN":
                         onReceiveAskPlayAgain(received);
                         break;
+                    case "CHECK_ANSWER":
+                        onReceiveCheckAnswer(received);
+                        break;
 
                     case "EXIT":
                         running = false;
@@ -166,6 +169,10 @@ public class SocketHandler {
         // alert if connect interup
         showAlert("Mất kết nối tới server", "Lỗi");
         ClientRun.openScene(ClientRun.SceneName.CONNECTSERVER);
+    }
+
+    private void onReceiveCheckAnswer(String received) {
+        ClientRun.gameView.showAnswer(received);
     }
 
     /***
@@ -236,6 +243,13 @@ public class SocketHandler {
         sendData("START_GAME;" + loginUser + ";" + userInvited + ";" + roomIdPresent);
     }
 
+    public void checkAnswer(){
+        String answer = ClientRun.gameView.getAnswer();
+        System.out.println("Answer: " + answer);
+
+        sendData("CHECK_ANSWER;" + answer);
+    }
+
     public void submitResult (String competitor) {
         String result1 = ClientRun.gameView.getResults();
 
@@ -265,6 +279,7 @@ public class SocketHandler {
      */
     public void sendData(String data) {
         try {
+            System.out.println("Send: " + data);
             dos.writeUTF(data);
         } catch (IOException ex) {
             Logger.getLogger(SocketHandler.class

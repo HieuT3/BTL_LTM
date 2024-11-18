@@ -463,30 +463,14 @@ public class GameView {
         }
     }
 
-    private void checkWord() {
+    public String getAnswer() {
         StringBuilder sb = new StringBuilder();
         for (Label label : centerLabels) {
             sb.append(label.getText());
         }
 
         String guessedWord = sb.toString();
-        String correctWord = words[i - 1];
-
-        if (guessedWord.equals(correctWord)) {
-            showAlert("Correct!", Alert.AlertType.INFORMATION);
-            res += "1";
-            loadNextWord();
-        } else {
-            showAlert("Incorrect!", Alert.AlertType.INFORMATION);
-        }
-    }
-
-    private void showAlert(String message, Alert.AlertType alertType) {
-        Alert alert = new Alert(alertType);
-        alert.setTitle("Result");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        return guessedWord + ";" + i;
     }
 
     private void btnLeaveGameActionPerformed() {
@@ -537,7 +521,32 @@ public class GameView {
     }
 
     private void btnCheckActionPerformed() {
-        checkWord();
+        ClientRun.socketHandler.checkAnswer();
+    }
+
+    public void showAnswer(String res){
+        String[] data = res.split(";");
+
+        if (data[1].equals("YES")) {
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Answer Feedback");
+                alert.setHeaderText(null);
+                alert.setContentText("Correct!");
+                alert.showAndWait();
+            });
+
+            res += "1";
+            loadNextWord();
+        } else {
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Answer Feedback");
+                alert.setHeaderText(null);
+                alert.setContentText("Incorrect!");
+                alert.showAndWait();
+            });
+        }
     }
 
     public boolean isAnswer() {
