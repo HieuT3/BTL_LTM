@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -89,6 +91,9 @@ public class SocketHandler {
                     case "GET_INFO_USER":
                         onReceiveGetInfoUser(received);
                         break;
+                    case "GET_SCORE_RANKING":
+                        onReceiveGetRankingScore(received);
+                        break;    
                     case "ACCEPT_MESSAGE":
                         onReceiveAcceptMessage(received);
                         break;
@@ -124,6 +129,9 @@ public class SocketHandler {
                         break;
                     case "ASK_PLAY_AGAIN":
                         onReceiveAskPlayAgain(received);
+                        break;
+                    case "CHECK_ANSWER":
+                        onReceiveCheckAnswer(received);
                         break;
                         
                     case "EXIT":
@@ -185,6 +193,10 @@ public class SocketHandler {
         sendData("GET_INFO_USER;" + username);
     }
     
+    public void getRanking() {
+        sendData("GET_SCORE_RANKING");
+    }
+    
     public void checkStatusUser(String username) {
         sendData("CHECK_STATUS_USER;" + username);
     }
@@ -218,6 +230,13 @@ public class SocketHandler {
         sendData("START_GAME;" + loginUser + ";" + userInvited + ";" + roomIdPresent);
     }
     
+    public void checkAnswer(){
+        String answer = ClientRun.gameView.getAnswer();
+        System.out.println("Answer: " + answer);
+        
+        sendData("CHECK_ANSWER;" + answer);
+    }
+    
     public void submitResult (String competitor) { 
         String result1 = ClientRun.gameView.getResults();
 
@@ -246,6 +265,7 @@ public class SocketHandler {
      */
     public void sendData(String data) {
         try {
+            System.out.println("Send: " + data);
             dos.writeUTF(data);
         } catch (IOException ex) {
             Logger.getLogger(SocketHandler.class
@@ -350,6 +370,45 @@ public class SocketHandler {
             ClientRun.infoPlayerView.setInfoUser(userName, userScore, userWin, userDraw, userLose, userAvgCompetitor, userAvgTime, userStatus);
         }
     }
+    
+    private void onReceiveGetRankingScore(String received) {
+        String[] data = received.split(";", 2); // Phân tách header và nội dung
+        if (data.length < 2) {
+            System.out.println("Invalid ranking data received.");
+            return;
+        }
+
+        String[] rankings = data[1].split(";"); // Phân tách từng người chơi
+
+        List<User> userList = new ArrayList<>();
+
+        for (String ranking : rankings) {
+            String[] userInfo = ranking.split("\\|");
+            if (userInfo.length < 7) {
+                System.out.println("Invalid user data: " + ranking);
+                continue;
+            }
+
+            // Tạo đối tượng User và thêm vào danh sách
+            User user = new User();
+            user.setUsername(userInfo[0]);
+            user.setScore(Float.parseFloat(userInfo[1]));
+            user.setWin(Integer.parseInt(userInfo[2]));
+            user.setDraw(Integer.parseInt(userInfo[3]));
+            user.setLose(Integer.parseInt(userInfo[4]));
+            user.setAvgCompetitor(Float.parseFloat(userInfo[5]));
+            user.setAvgTime(Float.parseFloat(userInfo[6]));
+
+            userList.add(user);
+        }
+
+
+        
+        
+        ClientRun.openScene(ClientRun.SceneName.RANKINGVIEW);
+        ClientRun.rankingView.setRankingTable(userList);
+    }
+    
     
     private void onReceiveLogout(String received) {
         // get status from data
@@ -561,6 +620,9 @@ public class SocketHandler {
         }
     }  
     
+    private void onReceiveCheckAnswer(String received){
+        ClientRun.gameView.showAnswer(received);
+    }
     
     // get set
     public String getLoginUser() {

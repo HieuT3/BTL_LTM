@@ -213,23 +213,15 @@ public class GameView3 extends javax.swing.JFrame {
         bottomPanel.repaint();
     }
 
-    // Kiểm tra từ khi ấn Submit
-    private void checkWord() {
+    public String getAnswer() {
         StringBuilder sb = new StringBuilder();
         for (JLabel label : centerLabels) {
             sb.append(label.getText());
         }
 
         String guessedWord = sb.toString();
-        String correctWord = words[i - 1]; // Lấy từ đúng để so sánh
-
-        if (guessedWord.equals(correctWord)) {
-            JOptionPane.showMessageDialog(this, "Correct!");
-            res += "1";
-            loadNextWord();
-        } else {
-            JOptionPane.showMessageDialog(this, "Incorrect!");
-        }
+        
+        return guessedWord + ";" + Integer.toString(i);
     }
     
     private class CenterLabelMouseListener extends MouseAdapter {
@@ -544,9 +536,20 @@ public class GameView3 extends javax.swing.JFrame {
         };
     }                                       
 
-    private void btnCheckActionPerformed(java.awt.event.ActionEvent evt) {                                         
-        checkWord();
-    }                                        
+    private void btnCheckActionPerformed(java.awt.event.ActionEvent evt) { 
+        ClientRun.socketHandler.checkAnswer();
+    }    
+    
+    public void showAnswer(String res){
+        String[] data = res.split(";");
+        if (data[1].equals("YES")) {
+            JOptionPane.showMessageDialog(this, "Correct!");
+            res += "1";
+            loadNextWord();
+        } else {
+            JOptionPane.showMessageDialog(this, "Incorrect!");
+        }
+    }
 
     /**
      * @param args the command line arguments

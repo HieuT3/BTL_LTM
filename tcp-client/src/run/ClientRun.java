@@ -9,6 +9,7 @@ import view.InfoPlayerView;
 import view.LoginView;
 import view.MessageView;
 import view.RegisterView;
+import view.RankingView;
 
 public class ClientRun {
     public enum SceneName {
@@ -18,7 +19,8 @@ public class ClientRun {
         HOMEVIEW,
         INFOPLAYER,
         MESSAGEVIEW,
-        GAMEVIEW
+        GAMEVIEW,
+        RANKINGVIEW
     }
 
     // scenes
@@ -29,6 +31,7 @@ public class ClientRun {
     public static GameView3 gameView;
     public static InfoPlayerView infoPlayerView;
     public static MessageView messageView;
+    public static RankingView rankingView;
 
     // controller 
     public static SocketHandler socketHandler;
@@ -80,6 +83,10 @@ public class ClientRun {
                     gameView = new GameView3();
                     gameView.setVisible(true);
                     break;
+                case RANKINGVIEW:
+                    rankingView = new RankingView();
+                    rankingView.setVisible(true);
+                    break;
                 default:
                     break;
             }
@@ -110,6 +117,8 @@ public class ClientRun {
                 case GAMEVIEW:
                     gameView.dispose();
                     break;
+                case RANKINGVIEW:
+                    rankingView.dispose();
                 default:
                     break;
             }

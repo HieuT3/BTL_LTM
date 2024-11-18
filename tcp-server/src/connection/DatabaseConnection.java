@@ -8,7 +8,7 @@ public class DatabaseConnection {
 	
     String jdbcURL = "jdbc:mysql://localhost:3306/btl_ltm?useSSL=false&allowPublicKeyRetrieval=true";
     private String jdbcUsername = "root";
-    private String jdbcPassword = "123456";
+    private String jdbcPassword = "12345";
 
     private static DatabaseConnection instance;
     private Connection connection;

@@ -2,6 +2,11 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/C:/Users/D%20E%20L%20L/Documents/NetBeansProjects/btlltm-ptit-master/btlltm-ptit-master/btlltm-tcp-client/src/controller/User.java</file>
+            <file>file:/C:/Users/D%20E%20L%20L/Documents/NetBeansProjects/btlltm-ptit-master/btlltm-ptit-master/btlltm-tcp-client/src/view/GameView3.java</file>
+            <file>file:/C:/Users/D%20E%20L%20L/Documents/NetBeansProjects/btlltm-ptit-master/btlltm-ptit-master/btlltm-tcp-client/src/controller/SocketHandler.java</file>
+            <file>file:/C:/Users/D%20E%20L%20L/Documents/NetBeansProjects/btlltm-ptit-master/btlltm-ptit-master/btlltm-tcp-client/src/run/ClientRun.java</file>
+        </group>
     </open-files>
 </project-private>

@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 import run.ServerRun;
 import helper.Question;
 import java.sql.SQLException;
+import java.util.Collections;
 
 /**
  *
@@ -28,6 +29,7 @@ public class Client implements Runnable {
 
     String loginUser;
     Client cCompetitor;
+    String words = null;
     
 //    ArrayList<Client> clients
     Room joinedRoom; // if == null => chua vao phong nao het
@@ -45,6 +47,7 @@ public class Client implements Runnable {
 
         String received;
         boolean running = true;
+     
 
         while (!ServerRun.isShutDown) {
             try {
@@ -116,6 +119,9 @@ public class Client implements Runnable {
                         break;
                     case "ASK_PLAY_AGAIN":
                         onReceiveAskPlayAgain(received);
+                        break;
+                    case "CHECK_ANSWER":
+                        onReceivedCheckAnswer(received);
                         break;
                         
                     case "EXIT":
@@ -356,6 +362,7 @@ public class Client implements Runnable {
         
         this.cCompetitor = null;
         this.joinedRoom = null;
+        this.words = null;
         
         // delete room
         Room room = ServerRun.roomManager.find(roomId);
@@ -397,14 +404,43 @@ public class Client implements Runnable {
         String user2 = splitted[2];
         String roomId = splitted[3];
         
-        String question = Question.renQuestion();
+        this.words = Question.renQuestion();
+        String []wordList = this.words.split(";");
         
-        String data = "START_GAME;success;" + roomId + ";" + question;
+        StringBuilder wordData = new StringBuilder(); // Sử dụng StringBuilder để nối chuỗi hiệu quả hơn
+
+        for (String w : wordList) { // Sử dụng ":" để duyệt danh sách
+            ArrayList<String> letters = new ArrayList<>();
+            for (char c : w.toCharArray()) {
+                letters.add(String.valueOf(c)); // Thêm từng chữ cái vào danh sách
+            }
+            Collections.shuffle(letters); // Xáo trộn danh sách
+
+            // Kết hợp các chữ cái thành chuỗi
+            StringBuilder scrambled = new StringBuilder();
+            for (String letter : letters) {
+                scrambled.append(letter);
+            }
+
+            if (wordData.length() > 0) {
+                wordData.append(";"); // Thêm dấu phẩy (hoặc dấu cách) giữa các từ
+            }
+            wordData.append(scrambled); // Thêm từ bị xáo trộn vào chuỗi kết quả
+        }
+
+        // Kết quả chuỗi
+        String result = wordData.toString();
+        System.out.println(result);
+
+        
+        String data = "START_GAME;success;" + roomId + ";" + result;
         // Send question here
         joinedRoom.resetRoom();
         joinedRoom.broadcast(data);
         joinedRoom.startGame();
     } 
+    
+    
     
     private void onReceiveSubmitResult(String received) throws SQLException {
         String[] splitted = received.split(";");
@@ -440,7 +476,19 @@ public class Client implements Runnable {
         joinedRoom.waitingClientTimer();
     }
 
-
+    private void onReceivedCheckAnswer(String received){
+        String[] data = received.split(";");
+        int i = Integer.parseInt(data[2]);
+        String guessWord = data[1];
+        String correctWord = this.words.split(";")[i-1];
+        
+        System.out.println("Check answer: " + guessWord + "-" + correctWord);
+        if(guessWord.equals(correctWord)){
+            sendData("CHECK_ANSWER" + ";" + "YES");
+        }else{
+            sendData("CHECK_ANSWER" + ";" + "NO");
+        }
+    }
     
     private void onReceiveAskPlayAgain(String received) throws SQLException {
         String[] splitted = received.split(";");
@@ -455,7 +503,7 @@ public class Client implements Runnable {
             joinedRoom.setPlayAgainC2(reply);
         }
         
-        while (joinedRoom != null && !joinedRoom.getWaitingTime().equals("00:00")) {
+        while (!joinedRoom.getWaitingTime().equals("00:00")) {
             if(joinedRoom.getPlayAgainC1() != null && joinedRoom.getPlayAgainC2() != null){
                 break;
             }
@@ -516,5 +564,11 @@ public class Client implements Runnable {
         this.joinedRoom = joinedRoom;
     }
     
-    
+    public String getWords() {
+        return words;
+    }
+
+    public void setWords(String words) {
+        this.words = words;
+    }
 }
